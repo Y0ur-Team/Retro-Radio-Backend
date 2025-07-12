@@ -128,7 +128,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # channel type shit
-REDIS_URL = os.getenv("REDIS_URL") # no fall back url for now 😅 hehe
+REDIS_URL = os.getenv("REDIS_URL","redis://localhost:6379") # no fall back url for now 😅 hehe
 
 CHANNEL_LAYERS = {
     "default": {

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Retro Radio WebSocket Test</title>
+  <style>
+    body { font-family: monospace; background: #111; color: #0f0; padding: 20px; }
+    input, button { margin: 10px 0; font-family: inherit; padding: 5px; }
+    #log { border: 1px solid #0f0; padding: 10px; height: 300px; overflow-y: scroll; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h2>📡 Retro Radio WebSocket Test</h2>
+
+  <label>RETRO-TOKEN (session_id):</label><br>
+  <input type="text" id="token" size="60" placeholder="Paste your session_id here" /><br>
+
+  <label>Frequency:</label><br>
+  <input type="text" id="frequency" value="69" /><br>
+
+  <button onclick="connect()">Connect</button><br>
+
+  <div id="ws-status">WebSocket: <span style="color: red;">Disconnected</span></div>
+
+  <hr>
+
+  <label>Message:</label><br>
+  <input type="text" id="msg" size="50" />
+  <button onclick="sendMessage()">Send</button>
+
+  <h3>📻 Log:</h3>
+  <div id="log"></div>
+
+  <script>
+    let socket = null;
+
+    function connect() {
+      const token = document.getElementById('token').value.trim();
+      const frequency = document.getElementById('frequency').value.trim();
+
+      if (!token || !frequency) {
+        alert("Token and frequency are required!");
+        return;
+      }
+
+      const wsUrl = `ws://localhost:8000/ws/${frequency}/?token=${encodeURIComponent(token)}`;
+      socket = new WebSocket(wsUrl);
+
+      socket.onopen = () => {
+        document.getElementById('ws-status').innerHTML = 'WebSocket: <span style="color: lime;">Connected</span>';
+        log(`[✓] Connected to ${frequency} MHz`);
+      };
+
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        log(`[${data.callsign}] ${data.message}`);
+      };
+
+      socket.onclose = () => {
+        document.getElementById('ws-status').innerHTML = 'WebSocket: <span style="color: red;">Disconnected</span>';
+        log(`[x] Disconnected`);
+      };
+
+      socket.onerror = (err) => {
+        console.error("WebSocket error:", err);
+        log(`[!] WebSocket error`);
+      };
+    }
+
+    function sendMessage() {
+      const msg = document.getElementById('msg').value;
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({ message: msg }));
+        document.getElementById('msg').value = '';
+      } else {
+        alert("WebSocket not connected.");
+      }
+    }
+
+    function log(text) {
+      const logDiv = document.getElementById('log');
+      logDiv.innerText += text + "\n";
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
+  </script>
+</body>
+</html>
