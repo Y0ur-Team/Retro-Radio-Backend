@@ -120,6 +120,15 @@ REDIS_URL=redis://localhost:6379
 ```
 
 ---
+## For Production or DEBUG FALSE
+
+collect static with this command 
+
+```
+python manage.py collectstatic
+```
+
+---
 
 ## 📦 Folder Structure (Important Files)
 

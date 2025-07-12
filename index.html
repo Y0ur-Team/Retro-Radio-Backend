@@ -53,6 +53,14 @@
 
       socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
+
+        if (data.type === "play.audio") {
+          log(`[🔊] Playing: ${data.url}`);
+          const audio = new Audio(data.url);
+          audio.play();
+          return;
+        }
+
         log(`[${data.callsign}] ${data.message}`);
       };
 

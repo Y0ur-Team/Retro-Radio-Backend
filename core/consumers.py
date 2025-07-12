@@ -28,6 +28,10 @@ class RadioConsumer(AsyncWebsocketConsumer):
 
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
+        await self.send(text_data=json.dumps({
+            "type": "play.audio",
+            "url": "http://127.0.0.1/static/audio/test.mp3"
+        }))
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
