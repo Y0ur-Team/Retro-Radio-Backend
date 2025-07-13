@@ -13,10 +13,10 @@
   <h2>📡 Retro Radio WebSocket Test</h2>
 
   <label>RETRO-TOKEN (session_id):</label><br>
-  <input type="text" id="token" size="60" placeholder="Paste your session_id here" /><br>
+  <input type="text" id="token" size="60" value="173b8d2f-34af-4b6a-94cb-789ee72add7d" placeholder="Paste your session_id here" /><br>
 
   <label>Frequency:</label><br>
-  <input type="text" id="frequency" value="69" /><br>
+  <input type="text" id="frequency" value="100.7" /><br>
 
   <button onclick="connect()">Connect</button><br>
 
@@ -31,8 +31,12 @@
   <h3>📻 Log:</h3>
   <div id="log"></div>
 
+  <!-- Hidden audio player -->
+  <audio id="radio-player" controls style="margin-top: 20px; display: none;"></audio>
+
   <script>
     let socket = null;
+    const audioElement = document.getElementById('radio-player');
 
     function connect() {
       const token = document.getElementById('token').value.trim();
@@ -55,9 +59,12 @@
         const data = JSON.parse(event.data);
 
         if (data.type === "play.audio") {
-          log(`[🔊] Playing: ${data.url}`);
-          const audio = new Audio(data.url);
-          audio.play();
+          log(`[🔊] Streaming: ${data.station}`);
+          audioElement.src = data.url;
+          audioElement.style.display = 'block';
+          audioElement.play().catch(err => {
+            log(`[!] Failed to auto-play audio: ${err.message}`);
+          });
           return;
         }
 

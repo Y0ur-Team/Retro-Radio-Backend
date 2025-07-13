@@ -1,6 +1,6 @@
 # 📻 Retro Radio - Backend
 
-A real-time Django-powered backend for the **Retro Radio** project using Django Channels and WebSockets.
+A real-time Django-powered backend for the **Retro Radio** project using Django Channels, Redis, and WebSockets. Audio is streamed via Icecast + FFmpeg, simulating a GTA-style retro radio station.
 
 ---
 
@@ -11,6 +11,7 @@ A real-time Django-powered backend for the **Retro Radio** project using Django 
 - Django Channels
 - Redis (Cloud or Local)
 - Daphne (ASGI server)
+- FFmpeg + Icecast2 (for audio streaming)
 
 ---
 
@@ -80,18 +81,91 @@ Or Uvicorn (optional):
 ```bash
 uvicorn retro_radio.asgi:application --reload
 ```
+---
+
+## 📡 Audio Streaming Setup (Icecast + FFmpeg)
+
+### 1. 📥 Download Icecast
+
+* Download from: [https://icecast.org/download.php#windows](https://icecast.org/download.php#windows)
+* Extract the folder `icecast_win32_2.4.4` and run `icecast.exe`
+* Ensure port `8001` is open and streaming is enabled in `icecast.xml`.
+
+### 2. 📥 Download FFmpeg
+
+* Download from: [https://ffmpeg.org/download.html](https://ffmpeg.org/download.html)
+* Add the `ffmpeg/bin` folder to your system PATH (for terminal access).
 
 ---
 
-## 💡 Notes
+### 3. 🔊 Start Streaming Audio via FFmpeg
 
-* The WebSocket URL format is:
+Place your MP3 file (e.g. `test.mp3`) in the same directory as `ffmpeg.exe`.
+
+Run this command to loop-broadcast the track:
+
+```bash
+ffmpeg -re -stream_loop -1 -i test.mp3 -content_type audio/mpeg -f mp3 icecast://source:retroradio@localhost:8001/stream
+```
+
+🧠 This continuously sends `test.mp3` to Icecast, which serves it on:
+[http://localhost:8001/stream](http://localhost:8001/stream)
+
+---
+### 🎮 Start GTA 5 Style Radio (NonStopPopFM)
+
+1. **Download & Place the Required Tools/Resources:**
+
+   * 🔻 [Icecast](https://icecast.org/download.php)
+   * 🔻 [FFmpeg](https://ffmpeg.org/)
+   * Place [`NonStopPopFMHostedbyCaraGTA5.mp3`](https://mega.nz/file/KFAUBCZL#05ZrQryO3Os5d3i3jQzsgEzI8m8DAMLkztt7bmlfrF4) manually in the correct folder
+   * Click [`NonStopPopFMHostedbyCaraGTA5.mp3`](https://mega.nz/file/KFAUBCZL#05ZrQryO3Os5d3i3jQzsgEzI8m8DAMLkztt7bmlfrF4) to Download !
+
+2. Extract and place them in the correct folders:
+
+   ```
+   radiostream/
+   ├── Icecast/
+   ├── ffmpeg-master-latest-win64-gpl/bin/NonStopPopFMHostedbyCaraGTA5.mp3
+   └── ffmpeg-master-latest-win64-gpl/
+   ```
+
+3. 🎵 Place your audio file as:
+
+   ```
+   radiostream/ffmpeg-master-latest-win64-gpl/bin/NonStopPopFMHostedbyCaraGTA5.mp3
+   ```
+
+4. ▶️ Run this script to launch Icecast + FFmpeg stream:
+
+   ```bash
+   start_radio_GTA5.bat
+   ```
+
+5. ✅ The station will stream continuously on:
+   [http://localhost:8001/stream](http://localhost:8001/stream)
+   Tune into `100.7 MHz` in your app to listen!
+
+---
+## ✅ WebSocket Info
+
+* URL format:
 
   ```
-  ws://localhost:8000/ws/<frequency>/?token=<your_session_id>
+  ws://localhost:8000/ws/<frequency>/?token=<session_id>
   ```
 
-* The frontend must send the `token` as a **query parameter**, not header (due to browser security).
+* If frequency is `100.7`, server will automatically stream `http://localhost:8001/stream`.
+
+* The `token` is required (acts as session ID).
+
+---
+
+## 🎧 Test WebSocket & Audio
+
+Open `test.html` in your browser to test WebSocket messages and auto-play stream.
+
+You will hear "NonStopPopFM by Cara" on `100.7 MHz`.
 
 ---
 
