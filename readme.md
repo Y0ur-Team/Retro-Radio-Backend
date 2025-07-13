@@ -6,7 +6,7 @@ A real-time Django-powered backend for the **Retro Radio** project using Django 
 
 ## ⚙️ Tech Stack
 
-- Python 3.10+
+- Python 3.10.11
 - Django 5.1
 - Django Channels
 - Redis (Cloud or Local)
